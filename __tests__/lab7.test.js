@@ -76,13 +76,12 @@ describe('Basic user flow for Website', () => {
     const buttonInnerText = await button.evaluateHandle(el => el.innerText);
     const buttonText = await buttonInnerText.jsonValue();
 
-    expect(buttonText).toBe('Remove from Cart')
-
+    expect(buttonText).toBe('Remove from Cart');
   }, 2500);
 
   // Check to make sure that after clicking "Add to Cart" on every <product-item> that the Cart
   // number in the top right has been correctly updated
-  it.skip('Checking number of items in cart on screen', async () => {
+  it('Checking number of items in cart on screen', async () => {
     console.log('Checking number of items in cart on screen...');
 
     /**
@@ -93,10 +92,26 @@ describe('Basic user flow for Website', () => {
      * Remember to remove the .skip from this it once you are finished writing this test.
      */
 
+    const prodItems = await page.$$('product-item');
+
+    for (let i = 1; i < prodItems.length; i++) {
+      const prodItem = prodItems[i];
+      const itemShadowRoot = await prodItem.evaluateHandle(el => el.shadowRoot);
+      const button = await itemShadowRoot.evaluateHandle(el => el.querySelector('button'));
+      await button.click();
+
+      console.log(`Item ${i} added to cart`);
+    }
+
+    const cartCount = await page.evaluate(() => {
+      return document.querySelector('#cart-count').innerText;
+    });
+
+    expect(Number(cartCount)).toBe(20);
   }, 10000);
 
   // Check to make sure that after you reload the page it remembers all of the items in your cart
-  it.skip('Checking number of items in cart on screen after reload', async () => {
+  it('Checking number of items in cart on screen after reload', async () => {
     console.log('Checking number of items in cart on screen after reload...');
 
     /**
@@ -106,7 +121,23 @@ describe('Basic user flow for Website', () => {
      * Also check to make sure that #cart-count is still 20
      * Remember to remove the .skip from this it once you are finished writing this test.
      */
+    await page.reload();
+    const prodItems = await page.$$('product-item');
 
+    for (let i = 0; i < prodItems.length; i++) {
+      const prodItem = prodItems[i];
+      const itemShadowRoot = await prodItem.evaluateHandle(el => el.shadowRoot);
+      const button = await itemShadowRoot.evaluateHandle(el => el.querySelector('button'));
+      const buttonInnerText = await button.evaluateHandle(el => el.innerText);
+      const buttonText = await buttonInnerText.jsonValue();
+      expect(buttonText).toBe('Remove from Cart');
+    }
+
+    const cartCount = await page.evaluate(() => {
+      return document.querySelector('#cart-count').innerText;
+    });
+
+    expect(Number(cartCount)).toBe(20);
   }, 10000);
 
   // Check to make sure that the cart in localStorage is what you expect

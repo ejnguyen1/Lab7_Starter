@@ -36,7 +36,7 @@ describe('Basic user flow for Website', () => {
     });
 
     for (let i = 0; i < prodItemsData.length; i++) {
-      console.log(`Checking product item ${i+1}/${prodItemsData.length}`);
+      // console.log(`Checking product item ${i+1}/${prodItemsData.length}`);
 
       // Make sure the title, price, and image are populated in the JSON
       value = prodItemsData[i];
